@@ -27,7 +27,7 @@ macro(configure_files srcDir destDir)
                       ${destDir}/${templateFile}
                       COPYONLY)
               endif(NOT result)
-            endif(resultCMakeLists)
+            endif(NOT resultCMakeLists)
         else(NOT IS_DIRECTORY ${srcTemplatePath})
             set(nextDir ${destDir}/${templateFile})
             set(resultCVSWin 0)
