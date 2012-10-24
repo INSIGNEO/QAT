@@ -59,5 +59,5 @@ else(${PROJ_BINARY_DIR})
 endif(${PROJ_BINARY_DIR})
 
 get_filename_component(CUR_ABSOLUTE_DIR ${CMAKE_CURRENT_LIST_FILE} PATH)
-configure_files("${PROJ_SOURCE_DIR}/qa" "${CUR_ABSOLUTE_DIR}")
+configure_files("${QA_SOURCE_DIR}" "${CUR_ABSOLUTE_DIR}")
 add_subdirectory(doc_output)
