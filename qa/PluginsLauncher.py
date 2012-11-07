@@ -25,7 +25,6 @@ def run(param):
     python = "python "
 
     suffix = "PluginQA.py"
-    fileSuffix = "FilePattern.ini"
 
     resultDir = os.path.abspath(os.path.join(outputDir, "QAResults" , "xml"))
     if not os.path.exists(resultDir):
@@ -39,21 +38,13 @@ def run(param):
 
     for line in lines:
         line = line.replace("\r", "").replace("\n", "")
-        ruleGroup = line.replace(suffix,"")
+        script = line
+        plugin = script.replace(suffix,"")
 
-        print "QA Running...", ruleGroup
-
-        filePattern = ruleGroup + fileSuffix
+        print "QA Running...", plugin
   
-        rulesFile = os.path.join(currentPathScript, "Rules", filePattern)
-        r = open(rulesFile)
-        linesRule = r.readlines()
-        #  print linesRule
-  
-        sourceDir = eval(str(linesRule[1]).rsplit("=")[1])
-  
-        command = python + line + " " + sourceDir + " " + resultDir + "/"
-        print command
+        command = python + script 
+        print "command: ", command
         os.system(command.replace("\"","").replace("\r", "").replace("\n", ""))
 
     print "QA SUCCESSFUL"
