@@ -16,15 +16,15 @@ def run(param):
     scriptsDir = currentPathScript
     f = None
     try:
-        f = open("TestListQA.txt")
+        f = open("PluginsList.txt")
     except:
         print "QA FAILED"
-        print "Probem open TestListQA.txt"
+        print "Probem opening PluginsList.txt"
 
     lines = f.readlines()
     python = "python "
 
-    suffix = "QA.py"
+    suffix = "PluginQA.py"
     fileSuffix = "FilePattern.ini"
 
     resultDir = os.path.abspath(os.path.join(outputDir, "QAResults" , "xml"))
@@ -58,38 +58,13 @@ def run(param):
 
     print "QA SUCCESSFUL"
 
-
-    if(param['LCOVCoverage']):
-        baseDir = modulesDir
-        externalScriptFile = os.path.join(currentPathScript, "ExternalScripts", "lcov", "coverageScript.py")
-
-        for item in os.listdir(baseDir):
-            if (os.path.isfile(os.path.join(baseDir, item))==False):
-                if(item.find("maf") != -1):
-                    os.system("python " + externalScriptFile + " " + item)
-    if(param['cppcheck']):
-        baseDir = modulesDir
-        externalScriptFile = os.path.join(currentPathScript, "ExternalScripts", "cppcheck", "cppcheckScript.py")
-        print baseDir
-        os.system("python " + externalScriptFile)
-    if(param['cccc']):
-        baseDir = modulesDir
-        externalScriptFile = os.path.join(currentPathScript, "ExternalScripts", "cccc", "ccccScript.py")
-        for item in os.listdir(baseDir):
-            if (os.path.isfile(os.path.join(baseDir, item))==False):
-                if(item.find("maf") != -1):
-                    os.system("python " + externalScriptFile + " -m " + item)          
 def usage():
-    print "Usage: python ScriptLauncher.py [-h] [-l] [-c]"
+    print "Usage: python ScriptLauncher.py "
     print "-h, --help                    show help (this)"
-    print "-l, --enable-LCOVCoverage     enable LCOV coverage"
-    print "-c, --enable-cppcheck        enable cppcheck tool"
-    print "-C, --enable-cccc            enable cccc tool"
-    print 
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hlcC", ["help","enable-LCOVCoverage","enable-cppcheck","enable-cccc"])
+        opts, args = getopt.getopt(sys.argv[1:], "h", ["help",])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -100,16 +75,10 @@ def main():
         if o in ("-h", "--help"):
             usage()
             return
-        elif o in ("-l", "--enable-LCOVCoverage"):
-            LCOVCoverageFlag = True
-        elif o in ("-c", "--enable-cppcheck"):
-            cppcheckFlag = True
-        elif o in ("-C", "--enable-cccc"):
-            ccccFlag = True
         else:
             assert False, "unhandled option"
 
-    param = {'LCOVCoverage':LCOVCoverageFlag, 'cppcheck':cppcheckFlag, 'cccc':ccccFlag}
+    param = {}
     run(param)
     
 if __name__ == "__main__":

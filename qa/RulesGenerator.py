@@ -29,7 +29,7 @@ def CheckRulesDirectories(arg, directory, files):
       os.path.walk(directory, CheckRulesConfiguration, rule)
 
 def GeneratePythonQAScripts():
-    testList = open("TestListQA.txt", 'w')
+    testList = open("RulesList.txt", 'w')
     for ruleGroup, rules in allRules:
       f = open(ruleGroup + "QA.py", 'w')
       f.write("import os\n")
