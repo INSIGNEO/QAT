@@ -50,7 +50,7 @@ def run(param):
     print "QA SUCCESSFUL"
 
 def usage():
-    print "Usage: python ScriptLauncher.py "
+    print "Usage: python PluginsLauncher.py "
     print "-h, --help                    show help (this)"
 
 def main():
