@@ -22,13 +22,12 @@ def GeneratePythonQAScripts():
       f.write("import sys\n")
       f.write("import re\n")
       
-      #for rule in rules:
-      #  f.write("from Rules." + ruleGroup + " import " + rule + "\n")
+      f.write("\n")
+      f.write("from Plugins."+ plugin + " import " + plugin + "Script\n")
 
 	  #costant
       f.write("\n")
-      f.write("print " + "\"" + plugin + "\"")
-      #f.write("class " + ruleGroup + "QA():" + "\n")
+      f.write(plugin + "Script.execute()")
 
       testList.write(plugin + "QA.py" + "\n")
 
