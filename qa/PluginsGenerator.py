@@ -44,7 +44,7 @@ def GeneratePythonQAScripts():
           else:
             parameters.append(line[10:]) # remove "parameter="
         parameterString = ",".join(parameters)"""
-      f.write("plugin.setPluginParameters({test=\"uno\", var=\"due\"})\n")
+      f.write("plugin.setPluginParameters(test=\"uno\", var=\"due\")\n")
       
       #execute
       f.write("plugin.execute()")
