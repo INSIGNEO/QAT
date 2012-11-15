@@ -24,7 +24,7 @@ def run(param):
     lines = f.readlines()
     python = "python "
 
-    suffix = "RulesQA.py"
+    suffix = "QA.py"
     fileSuffix = "FilePattern.ini"
 
     resultDir = os.path.abspath(os.path.join(outputDir, "QAResults" , "xml"))
