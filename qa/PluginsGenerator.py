@@ -28,7 +28,7 @@ def GeneratePythonQAScripts():
 	  #instantiate
       f.write("plugin =" + plugin + " \n")
       #set parameters
-      f.write("plugin.setPluginParameters({})")
+      f.write("plugin.setPluginParameters({})\n")
       #execute
       f.write("plugin.execute()")
 
