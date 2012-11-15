@@ -23,11 +23,14 @@ def GeneratePythonQAScripts():
       f.write("import re\n")
       
       f.write("\n")
-      f.write("from Plugins."+ plugin + " import " + plugin + "Script\n")
+      f.write("from Plugins."+ plugin + " import " + plugin + "\n")
 
-	  #costant
-      f.write("\n")
-      f.write(plugin + "Script.execute()")
+	  #instantiate
+      f.write("plugin =" + plugin + " \n")
+      #set parameters
+      f.write("plugin.setPluginParameters({})")
+      #execute
+      f.write("plugin.execute()")
 
       testList.write(plugin + "QA.py" + "\n")
 
