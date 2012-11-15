@@ -27,8 +27,25 @@ def GeneratePythonQAScripts():
 
 	  #instantiate
       f.write("plugin = " + plugin + "." + plugin + "() \n")
+      
       #set parameters
-      f.write("plugin.setPluginParameters({})\n")
+      """for rule in rules:
+        f.write("\n")
+        f.write("    " + "def " + rule + "(self, dirPath, file):" + "\n")
+        f.write("    " + "    rule = " + rule + "." + rule + "()"  + "\n")
+        
+        inif = open("./Rules/" + ruleGroup + "/" + rule + ".ini", 'r')
+        lines = inif.readlines()
+        inif.close()
+        parameters = []
+        for line in lines:
+          if(line[-1] == "\n"):
+            parameters.append(line[10:-1]) # remove "parameter="
+          else:
+            parameters.append(line[10:]) # remove "parameter="
+        parameterString = ",".join(parameters)"""
+      f.write("plugin.setPluginParameters({test=\"uno\", var=\"due\"})\n")
+      
       #execute
       f.write("plugin.execute()")
 
