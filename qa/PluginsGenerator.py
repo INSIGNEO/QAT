@@ -21,6 +21,7 @@ def GeneratePythonQAScripts():
       f.write("import os\n")
       f.write("import sys\n")
       f.write("import re\n")
+      f.write("import mafPath\n")
       
       f.write("\n")
       f.write("from Plugins."+ plugin + " import " + plugin + "\n")
@@ -28,23 +29,12 @@ def GeneratePythonQAScripts():
 	  #instantiate
       f.write("plugin = " + plugin + "." + plugin + "() \n")
       
-      #set parameters
-      """for rule in rules:
-        f.write("\n")
-        f.write("    " + "def " + rule + "(self, dirPath, file):" + "\n")
-        f.write("    " + "    rule = " + rule + "." + rule + "()"  + "\n")
-        
-        inif = open("./Rules/" + ruleGroup + "/" + rule + ".ini", 'r')
-        lines = inif.readlines()
-        inif.close()
-        parameters = []
-        for line in lines:
-          if(line[-1] == "\n"):
-            parameters.append(line[10:-1]) # remove "parameter="
-          else:
-            parameters.append(line[10:]) # remove "parameter="
-        parameterString = ",".join(parameters)"""
-      f.write("plugin.setPluginParameters(test=\"uno\", var=\"due\")\n")
+      #set parameters      
+      f.write("\n")
+      inif = open(os.path.join("Plugins",plugin,  plugin + ".ini"), 'r')
+      lines = inif.readlines()
+      inif.close()
+      f.write("plugin.setPluginParameters(" + ','.join([i.replace("\n","") for i in lines]) + ")\n")
       
       #execute
       f.write("plugin.execute()")
