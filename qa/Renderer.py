@@ -57,10 +57,11 @@ class Renderer:
 
 
         #Rules links!
-        ruleLinksString = ""
-        for link in htmlList:
-            if(link != "index.html" and link != "Styles"):
-                ruleLinksString = ruleLinksString + "<li><a href=\"" + link + "\">" + link[:link.find(".")] + "</a></li>\n"
+        self.RulesRenderer.generateLinks()
+        #ruleLinksString = ""
+        #for link in htmlList:
+        #    if(link != "index.html" and link != "Styles"):
+        #        ruleLinksString = ruleLinksString + "<li><a href=\"" + link + "\">" + link[:link.find(".")] + "</a></li>\n"
 
         xsltH = """<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
             <xsl:output indent="yes"/>
@@ -89,81 +90,83 @@ class Renderer:
         tailString = "".join(open(os.path.join(htmlDir, "Styles","tail.temp")))
    
    
-        # PluginsRenderer   
+        # PluginsRenderer
+        self.PluginsRenderer.generateLinks()   
         #check for external scripting
-        pos = 0
-        pos = headString.find("@@@_EXTERNAL_TOOLS_REPORT_@@@")-1
-        if(param['coverage']):
-            #generateExternalLink
-            externalScriptDirectory = os.path.join(scriptsDir, "ExternalScripts", "lcov")
-            #os.chdir(externalScriptDirectory)
-            os.system("python " + os.path.join(externalScriptDirectory, "coveragePublish.py"))
+        #pos = 0
+        #pos = headString.find("@@@_EXTERNAL_TOOLS_REPORT_@@@")-1
+        #if(param['coverage']):
+        #    #generateExternalLink
+        #    externalScriptDirectory = os.path.join(scriptsDir, "ExternalScripts", "lcov")
+        #    #os.chdir(externalScriptDirectory)
+        #    os.system("python " + os.path.join(externalScriptDirectory, "coveragePublish.py"))
       
-        li = "<li><a href=\"../externalCoverage/index.html\">Coverage</a></li>";
-        headString = headString[:pos] + li + headString[pos:]
-        pos = pos + len(li)
-        #os.chdir(scriptsDir)
+        #li = "<li><a href=\"../externalCoverage/index.html\">Coverage</a></li>";
+        #headString = headString[:pos] + li + headString[pos:]
+        #pos = pos + len(li)
+        ##os.chdir(scriptsDir)
 
-        if(param['cppcheck']):
-            #generateExternalLink
-            externalScriptDirectory = os.path.join(scriptsDir,"ExternalScripts", "cppcheck")
-            #os.chdir(externalScriptDirectory)
-            os.system("python " + os.path.join(externalScriptDirectory,"cppcheckPublish.py"))
-            li = "<li><a href=\"../externalcppcheck/index.html\">Static Analysis</a></li>"
-            headString = headString[:pos] + li + headString[pos:]
-            pos = pos + len(li)
-            #os.chdir(scriptsDir)
+        #if(param['cppcheck']):
+        #    #generateExternalLink
+        #    externalScriptDirectory = os.path.join(scriptsDir,"ExternalScripts", "cppcheck")
+        #    #os.chdir(externalScriptDirectory)
+        #    os.system("python " + os.path.join(externalScriptDirectory,"cppcheckPublish.py"))
+        #    li = "<li><a href=\"../externalcppcheck/index.html\">Static Analysis</a></li>"
+        #    headString = headString[:pos] + li + headString[pos:]
+        #    pos = pos + len(li)
+        #    #os.chdir(scriptsDir)
    
-        if(param['cccc']):
-            #generateExternalLink
-            externalScriptDirectory = os.path.join(scriptsDir,"ExternalScripts", "cccc")
-            #os.chdir(externalScriptDirectory)
-            os.system("python " + os.path.join(externalScriptDirectory, "ccccPublish.py"))
-            li = "<li><a href=\"../externalcccc/index.html\">Code Complexity</a></li>"
-            headString = headString[:pos] + li + headString[pos:]
-            pos = pos + len(li)
-            #os.chdir(scriptsDir)
+        #if(param['cccc']):
+        #    #generateExternalLink
+        #    externalScriptDirectory = os.path.join(scriptsDir,"ExternalScripts", "cccc")
+        #    #os.chdir(externalScriptDirectory)
+        #    os.system("python " + os.path.join(externalScriptDirectory, "ccccPublish.py"))
+        #    li = "<li><a href=\"../externalcccc/index.html\">Code Complexity</a></li>"
+        #    headString = headString[:pos] + li + headString[pos:]
+        #    pos = pos + len(li)
+        #    #os.chdir(scriptsDir)
     
-        #remove placeholder for external scripting
-        headString = headString.replace("@@@_EXTERNAL_TOOLS_REPORT_@@@", "")
+        ##remove placeholder for external scripting
+        #headString = headString.replace("@@@_EXTERNAL_TOOLS_REPORT_@@@", "")
 
         # RulesRenderer
-        success = True
-        for xmlFile in xmlList:
-            try:
-                filename = os.path.splitext(xmlFile)[0]
-                print "Formatting in HTML " + filename
-                #with lxml parse the file
-                f = open(xmlDir + "/" + xmlFile,'r')
-                xml = fromstring(str(f.read()))
+        self.RulesRenderer.generateBody()
+        #success = True
+        #for xmlFile in xmlList:
+        #    try:
+        #        filename = os.path.splitext(xmlFile)[0]
+        #        print "Formatting in HTML " + filename
+        #        #with lxml parse the file
+        #        f = open(xmlDir + "/" + xmlFile,'r')
+        #        xml = fromstring(str(f.read()))
 
-                #with lxml create html
-                searchF = filename  + ".xslt"
-                absPathXslt = ""
-                for top, dirs, files in os.walk('./'):
-                    for nm in files:
-                        if(nm == searchF):
-                            absPathXslt = os.path.join(top, nm)
+        #       #with lxml create html
+        #        searchF = filename  + ".xslt"
+        #        absPathXslt = ""
+        #        for top, dirs, files in os.walk('./'):
+        #            for nm in files:
+        #                if(nm == searchF):
+        #                    absPathXslt = os.path.join(top, nm)
 
-                fileXslt = open(absPathXslt, 'r') 
-                #print xsltH + headString + centerString + str(fileXslt.read()) + tailString + xsltT
-                xsl = fromstring(xsltH + headString + ruleLinksString + centerString + str(fileXslt.read()) + tailString + xsltT) 
-                style = XSLT(xsl)
-                result = style.apply(xml)
+        #        fileXslt = open(absPathXslt, 'r') 
+        #        #print xsltH + headString + centerString + str(fileXslt.read()) + tailString + xsltT
+        #        xsl = fromstring(xsltH + headString + ruleLinksString + centerString + str(fileXslt.read()) + tailString + xsltT) 
+        #        style = XSLT(xsl)
+        #        result = style.apply(xml)
            
-                #print htmlDir + filename + ".html"
-                html = open(os.path.join(htmlDir, filename + ".html"), 'w')
-                print >> html , style.tostring(result)
-                except Exception, e:
-                    success = False
-                    print "!!!!!!Bad Formatted XML on ", filename, "!!!!!!!"
-                    print e
-                    os.chdir(scriptsDir)
+        #        #print htmlDir + filename + ".html"
+        #        html = open(os.path.join(htmlDir, filename + ".html"), 'w')
+        #        print >> html , style.tostring(result)
+        #        except Exception, e:
+        #            success = False
+        #            print "!!!!!!Bad Formatted XML on ", filename, "!!!!!!!"
+        #            print e
+        #            os.chdir(scriptsDir)
    
-        if(success == True):
-            print "PUBLISH SUCCESSFUL"
+        #if(success == True):
+        #    print "PUBLISH SUCCESSFUL"
    
-        index = open(os.path.join(htmlDir, "index.html"), 'w')
+        #index = open(os.path.join(htmlDir, "index.html"), 'w')
    
         # Base Renderer
         introduction = """
