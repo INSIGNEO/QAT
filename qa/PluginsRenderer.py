@@ -17,38 +17,45 @@ currentPathScript = os.path.split(os.path.realpath(__file__))[0]
 
 class PluginsRenderer:
     def __init__(self):
+        self.scriptsDir = ""
+        self.param = {'coverage' : None,
+                      'cppcheck' : None,
+                      'cccc' : None,
+                      'memory-profiling' : None,
+                     }
         pass
         
-    def generateLinks(self):
+    def generateLinks(self, headString):
         #check for external scripting
+        self.scriptsDir = os.getcwd()
         pos = 0
         pos = headString.find("@@@_EXTERNAL_TOOLS_REPORT_@@@")-1
-        if(param['coverage']):
-            #generateExternalLink
-            externalScriptDirectory = os.path.join(scriptsDir, "ExternalScripts", "lcov")
-            #os.chdir(externalScriptDirectory)
-            os.system("python " + os.path.join(externalScriptDirectory, "coveragePublish.py"))
-      
-        li = "<li><a href=\"../externalCoverage/index.html\">Coverage</a></li>";
-        headString = headString[:pos] + li + headString[pos:]
-        pos = pos + len(li)
-        #os.chdir(scriptsDir)
 
-        if(param['cppcheck']):
+        if(self.param['coverage']):
             #generateExternalLink
-            externalScriptDirectory = os.path.join(scriptsDir,"ExternalScripts", "cppcheck")
+            externalScriptDirectory = os.path.join(self.scriptsDir, "Plugins", "lcovPlugin")
             #os.chdir(externalScriptDirectory)
-            os.system("python " + os.path.join(externalScriptDirectory,"cppcheckPublish.py"))
+            os.system("python " + os.path.join(externalScriptDirectory, "lcovPluginPublish.py"))
+            li = "<li><a href=\"../externalCoverage/index.html\">Coverage</a></li>";
+            headString = headString[:pos] + li + headString[pos:]
+            pos = pos + len(li)
+            #os.chdir(scriptsDir)
+
+        if(self.param['cppcheck']):
+            #generateExternalLink
+            externalScriptDirectory = os.path.join(self.scriptsDir,"Plugins", "cppcheckPlugin")
+            #os.chdir(externalScriptDirectory)
+            os.system("python " + os.path.join(externalScriptDirectory,"cppcheckPluginPublish.py"))
             li = "<li><a href=\"../externalcppcheck/index.html\">Static Analysis</a></li>"
             headString = headString[:pos] + li + headString[pos:]
             pos = pos + len(li)
             #os.chdir(scriptsDir)
    
-        if(param['cccc']):
+        if(self.param['cccc']):
             #generateExternalLink
-            externalScriptDirectory = os.path.join(scriptsDir,"ExternalScripts", "cccc")
+            externalScriptDirectory = os.path.join(self.scriptsDir,"Plugins", "ccccPlugin")
             #os.chdir(externalScriptDirectory)
-            os.system("python " + os.path.join(externalScriptDirectory, "ccccPublish.py"))
+            os.system("python " + os.path.join(externalScriptDirectory, "ccccPluginPublish.py"))
             li = "<li><a href=\"../externalcccc/index.html\">Code Complexity</a></li>"
             headString = headString[:pos] + li + headString[pos:]
             pos = pos + len(li)
@@ -56,48 +63,7 @@ class PluginsRenderer:
     
         #remove placeholder for external scripting
         headString = headString.replace("@@@_EXTERNAL_TOOLS_REPORT_@@@", "")
-
-    
-        
-    def run(param):   
-        # PluginsRenderer
-        self.PluginsRenderer.generateLinks()   
-        #check for external scripting
-        pos = 0
-        pos = headString.find("@@@_EXTERNAL_TOOLS_REPORT_@@@")-1
-        if(param['coverage']):
-            #generateExternalLink
-            externalScriptDirectory = os.path.join(scriptsDir, "ExternalScripts", "lcov")
-            #os.chdir(externalScriptDirectory)
-            os.system("python " + os.path.join(externalScriptDirectory, "coveragePublish.py"))
-      
-        li = "<li><a href=\"../externalCoverage/index.html\">Coverage</a></li>";
-        headString = headString[:pos] + li + headString[pos:]
-        pos = pos + len(li)
-        #os.chdir(scriptsDir)
-
-        if(param['cppcheck']):
-            #generateExternalLink
-            externalScriptDirectory = os.path.join(scriptsDir,"ExternalScripts", "cppcheck")
-            #os.chdir(externalScriptDirectory)
-            os.system("python " + os.path.join(externalScriptDirectory,"cppcheckPublish.py"))
-            li = "<li><a href=\"../externalcppcheck/index.html\">Static Analysis</a></li>"
-            headString = headString[:pos] + li + headString[pos:]
-            pos = pos + len(li)
-            #os.chdir(scriptsDir)
-   
-        if(param['cccc']):
-            #generateExternalLink
-            externalScriptDirectory = os.path.join(scriptsDir,"ExternalScripts", "cccc")
-            #os.chdir(externalScriptDirectory)
-            os.system("python " + os.path.join(externalScriptDirectory, "ccccPublish.py"))
-            li = "<li><a href=\"../externalcccc/index.html\">Code Complexity</a></li>"
-            headString = headString[:pos] + li + headString[pos:]
-            pos = pos + len(li)
-            #os.chdir(scriptsDir)
-    
-        #remove placeholder for external scripting
-        headString = headString.replace("@@@_EXTERNAL_TOOLS_REPORT_@@@", "")
+        return headString
 
 def usage():
     print "Usage: python ScriptLauncher.py [-h] [-l] [-c] [-M]"
@@ -108,7 +74,30 @@ def usage():
     print "-M, --enable-memory-profiling   enable memory profiler tool"
 
 def main():
-    pass
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hlcCM", ["help","enable-coverage","enable-cppcheck","enable-cccc", "enable-memory-profiling"])
+    except getopt.GetoptError:
+        usage()
+        sys.exit(2)
+    param = {'coverage':False, 'cppcheck':False, 'cccc':False, 'memory-profiling' : False}
+    p = PluginsRenderer()
+    for o, a in opts:
+        if o in ("-h", "--help"):
+            usage()
+            return
+        elif o in ("-l", "--enable-coverage"):
+            p.param['coverage'] = True
+        elif o in ("-c", "--enable-cppcheck"):
+            p.param['cppcheck'] = True
+        elif o in ("-C", "--enable-cccc"):
+            p.param['cccc'] = True
+        elif o in ("-M", "--enable-memory-profiling"):
+            p.param['memory-profiling'] = True
+        else:
+            assert False, "unhandled option"
+
+    p.generateLinks("")
+
 
 if __name__ == "__main__":
   main()

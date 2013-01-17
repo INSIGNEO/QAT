@@ -22,7 +22,6 @@ class Renderer:
     def __init__(self):
         self.RulesRenderer = RulesRenderer()
         self.PluginsRenderer = PluginsRenderer()
-        self.EnablePlugins = False
         
     def run(self, param):
         # Base Renderer
@@ -59,64 +58,22 @@ class Renderer:
         xmlList=os.listdir(xmlDir)
         htmlList=[file.replace(".xml", ".html") for file in os.listdir(xmlDir)]
 
-
         #Rules links!
         ruleLinksString = self.RulesRenderer.generateLinks()
-        #ruleLinksString = ""
-        #for link in htmlList:
-        #    if(link != "index.html" and link != "Styles"):
-        #        ruleLinksString = ruleLinksString + "<li><a href=\"" + link + "\">" + link[:link.find(".")] + "</a></li>\n"
-
-        
         xsltH, xsltT = self.generateXSLT()
         
-
         headString = "".join(open(os.path.join(htmlDir,"Styles" ,"head.temp")))
         headString = headString.replace("@@@_PUBLISH_DATE_@@@", str( datetime.now().date()))
         centerString = "".join(open(os.path.join(htmlDir,"Styles","center.temp")))
         tailString = "".join(open(os.path.join(htmlDir, "Styles","tail.temp")))
    
-   
         # PluginsRenderer
-        if(self.EnablePlugins):
-            self.PluginsRenderer.generateLinks()   
-        #check for external scripting
-        #pos = 0
-        #pos = headString.find("@@@_EXTERNAL_TOOLS_REPORT_@@@")-1
-        #if(param['coverage']):
-        #    #generateExternalLink
-        #    externalScriptDirectory = os.path.join(scriptsDir, "ExternalScripts", "lcov")
-        #    #os.chdir(externalScriptDirectory)
-        #    os.system("python " + os.path.join(externalScriptDirectory, "coveragePublish.py"))
-      
-        #li = "<li><a href=\"../externalCoverage/index.html\">Coverage</a></li>";
-        #headString = headString[:pos] + li + headString[pos:]
-        #pos = pos + len(li)
-        ##os.chdir(scriptsDir)
-
-        #if(param['cppcheck']):
-        #    #generateExternalLink
-        #    externalScriptDirectory = os.path.join(scriptsDir,"ExternalScripts", "cppcheck")
-        #    #os.chdir(externalScriptDirectory)
-        #    os.system("python " + os.path.join(externalScriptDirectory,"cppcheckPublish.py"))
-        #    li = "<li><a href=\"../externalcppcheck/index.html\">Static Analysis</a></li>"
-        #    headString = headString[:pos] + li + headString[pos:]
-        #    pos = pos + len(li)
-        #    #os.chdir(scriptsDir)
-   
-        #if(param['cccc']):
-        #    #generateExternalLink
-        #    externalScriptDirectory = os.path.join(scriptsDir,"ExternalScripts", "cccc")
-        #    #os.chdir(externalScriptDirectory)
-        #    os.system("python " + os.path.join(externalScriptDirectory, "ccccPublish.py"))
-        #    li = "<li><a href=\"../externalcccc/index.html\">Code Complexity</a></li>"
-        #    headString = headString[:pos] + li + headString[pos:]
-        #    pos = pos + len(li)
-        #    #os.chdir(scriptsDir)
-    
-        ##remove placeholder for external scripting
-        headString = headString.replace("@@@_EXTERNAL_TOOLS_REPORT_@@@", "")
-
+        for d in self.PluginsRenderer.param.keys():
+            if(d in param.keys()):
+                self.PluginsRenderer.param[d] = param[d]
+        
+        headString = self.PluginsRenderer.generateLinks(headString)   
+        
         # RulesRenderer
         message = { 'xsltHeader' : xsltH ,
                       'header' : headString ,
@@ -189,6 +146,7 @@ class Renderer:
            </p>
            """
         return introduction
+        
 def usage():
     print "Usage: python ScriptLauncher.py [-h] [-l] [-c] [-M]"
     print "-h, --help                     show help (this)"
