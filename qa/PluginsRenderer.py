@@ -20,7 +20,7 @@ class PluginsRenderer:
         pass
         
     def generateLinks(self):
-        check for external scripting
+        #check for external scripting
         pos = 0
         pos = headString.find("@@@_EXTERNAL_TOOLS_REPORT_@@@")-1
         if(param['coverage']):

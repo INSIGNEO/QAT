@@ -17,11 +17,13 @@ currentPathScript = os.path.split(os.path.realpath(__file__))[0]
 
 class RulesRenderer:
     def __init__(self):
+        self.scriptsDir = ""
+        self.htmlDir = ""
         pass
         
     def generateLinks(self):
         #create HTML dir
-        scriptsDir = os.getcwd()
+        self.scriptsDir = os.getcwd()
         baseDir = os.getcwd()  
         os.chdir(mafPath.mafQADir)
         baseDir = os.getcwd()
@@ -34,16 +36,16 @@ class RulesRenderer:
             print "Xml Directory not present: ", xmlDir
             sys.exit(1) 
 
-        htmlDir = os.path.join(baseDir,"QAResults","html")
+        self.htmlDir = os.path.join(baseDir,"QAResults","html")
 
-        if not os.path.exists(htmlDir):
-            os.makedirs(htmlDir)
-        if not os.path.exists(os.path.join(htmlDir,"Styles")):  
-            os.makedirs(os.path.join(htmlDir,"Styles"))
+        if not os.path.exists(self.htmlDir):
+            os.makedirs(self.htmlDir)
+        if not os.path.exists(os.path.join(self.htmlDir,"Styles")):  
+            os.makedirs(os.path.join(self.htmlDir,"Styles"))
 
-        if(os.path.exists(os.path.join(htmlDir,"Styles"))):
-            origDir = os.path.join(scriptsDir, "Styles")
-            destDir = os.path.join(htmlDir, "Styles")
+        if(os.path.exists(os.path.join(self.htmlDir,"Styles"))):
+            origDir = os.path.join(self.scriptsDir, "Styles")
+            destDir = os.path.join(self.htmlDir, "Styles")
             files = os.listdir(origDir)
             for item in files:
                 if (item != 'CVS' and item != 'SVN' and item != '.cvs' and item != '.svn'):
@@ -56,10 +58,12 @@ class RulesRenderer:
         for link in htmlList:
             if(link != "index.html" and link != "Styles"):
                 ruleLinksString = ruleLinksString + "<li><a href=\"" + link + "\">" + link[:link.find(".")] + "</a></li>\n"
+        return ruleLinksString
         
 
-    def generateBody(self):   
+    def generateBody(self, xmlDir, message):   
         success = True
+        xmlList=os.listdir(xmlDir)
         for xmlFile in xmlList:
             try:
                 filename = os.path.splitext(xmlFile)[0]
@@ -77,20 +81,21 @@ class RulesRenderer:
                             absPathXslt = os.path.join(top, nm)
 
                 fileXslt = open(absPathXslt, 'r') 
-                #print xsltH + headString + centerString + str(fileXslt.read()) + tailString + xsltT
-                xsl = fromstring(xsltH + headString + ruleLinksString + centerString + str(fileXslt.read()) + tailString + xsltT) 
+                report = message['xsltHeader'] + message['header'] + message['rulesLink'] + message['body'] + str(fileXslt.read()) + message['footer'] + message['xsltFooter']
+                xsl = fromstring(report) 
                 style = XSLT(xsl)
                 result = style.apply(xml)
            
                 #print htmlDir + filename + ".html"
-                html = open(os.path.join(htmlDir, filename + ".html"), 'w')
+                html = open(os.path.join(self.htmlDir, filename + ".html"), 'w')
                 print >> html , style.tostring(result)
-                except Exception, e:
+            except Exception, e:
                     success = False
                     print "!!!!!!Bad Formatted XML on ", filename, "!!!!!!!"
                     print e
-                    os.chdir(scriptsDir)
-            return result
+                    os.chdir(self.scriptsDir)
+                    return False
+        return success
            
 def main():
     pass

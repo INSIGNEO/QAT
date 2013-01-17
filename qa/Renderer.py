@@ -8,6 +8,9 @@ import shutil
 from datetime import datetime
 import getopt
 
+from RulesRenderer import RulesRenderer
+from PluginsRenderer import PluginsRenderer
+
 try:
     from qa import mafPath
 except ImportError:
@@ -17,8 +20,8 @@ currentPathScript = os.path.split(os.path.realpath(__file__))[0]
 
 class Renderer:
     def __init__(self):
-        self.RulesRenderer = None
-        self.PluginsRenderer = None
+        self.RulesRenderer = RulesRenderer()
+        self.PluginsRenderer = PluginsRenderer()
         self.EnablePlugins = False
         
     def run(self, param):
@@ -58,7 +61,7 @@ class Renderer:
 
 
         #Rules links!
-        self.RulesRenderer.generateLinks()
+        ruleLinksString = self.RulesRenderer.generateLinks()
         #ruleLinksString = ""
         #for link in htmlList:
         #    if(link != "index.html" and link != "Styles"):
@@ -115,7 +118,14 @@ class Renderer:
         headString = headString.replace("@@@_EXTERNAL_TOOLS_REPORT_@@@", "")
 
         # RulesRenderer
-        if(self.RulesRenderer.generateBody() == True):
+        message = { 'xsltHeader' : xsltH ,
+                      'header' : headString ,
+                      'rulesLink' : ruleLinksString ,
+                      'body' : centerString ,
+                      'footer' : tailString ,
+                      'xsltFooter' : xsltT 
+                    } 
+        if(self.RulesRenderer.generateBody(xmlDir, message) == True):
             print "PUBLISH SUCCESSFUL"
    
         index = open(os.path.join(htmlDir, "index.html"), 'w')
@@ -208,8 +218,9 @@ def main():
             param['memory-profiling'] = True
         else:
             assert False, "unhandled option"
-
-    run(param)
+    
+    r = Renderer()
+    r.run(param)
 
 
 if __name__ == "__main__":
