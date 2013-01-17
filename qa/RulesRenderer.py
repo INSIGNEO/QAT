@@ -56,11 +56,41 @@ class RulesRenderer:
         for link in htmlList:
             if(link != "index.html" and link != "Styles"):
                 ruleLinksString = ruleLinksString + "<li><a href=\"" + link + "\">" + link[:link.find(".")] + "</a></li>\n"
-        return ruleLinksString
+        
 
-            
     def generateBody(self):   
-        result = style.apply(xml)
+        success = True
+        for xmlFile in xmlList:
+            try:
+                filename = os.path.splitext(xmlFile)[0]
+                print "Formatting in HTML " + filename
+                #with lxml parse the file
+                f = open(xmlDir + "/" + xmlFile,'r')
+                xml = fromstring(str(f.read()))
+
+               #with lxml create html
+                searchF = filename  + ".xslt"
+                absPathXslt = ""
+                for top, dirs, files in os.walk('./'):
+                    for nm in files:
+                        if(nm == searchF):
+                            absPathXslt = os.path.join(top, nm)
+
+                fileXslt = open(absPathXslt, 'r') 
+                #print xsltH + headString + centerString + str(fileXslt.read()) + tailString + xsltT
+                xsl = fromstring(xsltH + headString + ruleLinksString + centerString + str(fileXslt.read()) + tailString + xsltT) 
+                style = XSLT(xsl)
+                result = style.apply(xml)
+           
+                #print htmlDir + filename + ".html"
+                html = open(os.path.join(htmlDir, filename + ".html"), 'w')
+                print >> html , style.tostring(result)
+                except Exception, e:
+                    success = False
+                    print "!!!!!!Bad Formatted XML on ", filename, "!!!!!!!"
+                    print e
+                    os.chdir(scriptsDir)
+            return result
            
 def main():
     pass

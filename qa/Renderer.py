@@ -19,8 +19,9 @@ class Renderer:
     def __init__(self):
         self.RulesRenderer = None
         self.PluginsRenderer = None
+        self.EnablePlugins = False
         
-    def run(param):
+    def run(self, param):
         # Base Renderer
         #read xml file
         scriptsDir = os.getcwd()
@@ -63,26 +64,9 @@ class Renderer:
         #    if(link != "index.html" and link != "Styles"):
         #        ruleLinksString = ruleLinksString + "<li><a href=\"" + link + "\">" + link[:link.find(".")] + "</a></li>\n"
 
-        xsltH = """<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-            <xsl:output indent="yes"/>
-            <xsl:template name="break">
-                <xsl:param name="text"/>
-                <xsl:choose>
-                   <xsl:when test="contains($text, '&#xa;')">
-                           <xsl:value-of select="substring-before($text, '&#xa;')"/>
-                           <br/>
-                           <xsl:call-template name="break">
-                                   <xsl:with-param name="text" select="substring-after($text,'&#xa;')"/>
-                           </xsl:call-template>
-                   </xsl:when>
-                   <xsl:otherwise>
-                   <xsl:value-of select="$text"/>
-                   </xsl:otherwise>
-               </xsl:choose>
-         </xsl:template>
-         <xsl:template match="/">"""
-         
-        xsltT = """ </xsl:template> </xsl:stylesheet>"""
+        
+        xsltH, xsltT = self.generateXSLT()
+        
 
         headString = "".join(open(os.path.join(htmlDir,"Styles" ,"head.temp")))
         headString = headString.replace("@@@_PUBLISH_DATE_@@@", str( datetime.now().date()))
@@ -91,7 +75,8 @@ class Renderer:
    
    
         # PluginsRenderer
-        self.PluginsRenderer.generateLinks()   
+        if(self.EnablePlugins):
+            self.PluginsRenderer.generateLinks()   
         #check for external scripting
         #pos = 0
         #pos = headString.find("@@@_EXTERNAL_TOOLS_REPORT_@@@")-1
@@ -127,48 +112,50 @@ class Renderer:
         #    #os.chdir(scriptsDir)
     
         ##remove placeholder for external scripting
-        #headString = headString.replace("@@@_EXTERNAL_TOOLS_REPORT_@@@", "")
+        headString = headString.replace("@@@_EXTERNAL_TOOLS_REPORT_@@@", "")
 
         # RulesRenderer
-        self.RulesRenderer.generateBody()
-        #success = True
-        #for xmlFile in xmlList:
-        #    try:
-        #        filename = os.path.splitext(xmlFile)[0]
-        #        print "Formatting in HTML " + filename
-        #        #with lxml parse the file
-        #        f = open(xmlDir + "/" + xmlFile,'r')
-        #        xml = fromstring(str(f.read()))
-
-        #       #with lxml create html
-        #        searchF = filename  + ".xslt"
-        #        absPathXslt = ""
-        #        for top, dirs, files in os.walk('./'):
-        #            for nm in files:
-        #                if(nm == searchF):
-        #                    absPathXslt = os.path.join(top, nm)
-
-        #        fileXslt = open(absPathXslt, 'r') 
-        #        #print xsltH + headString + centerString + str(fileXslt.read()) + tailString + xsltT
-        #        xsl = fromstring(xsltH + headString + ruleLinksString + centerString + str(fileXslt.read()) + tailString + xsltT) 
-        #        style = XSLT(xsl)
-        #        result = style.apply(xml)
-           
-        #        #print htmlDir + filename + ".html"
-        #        html = open(os.path.join(htmlDir, filename + ".html"), 'w')
-        #        print >> html , style.tostring(result)
-        #        except Exception, e:
-        #            success = False
-        #            print "!!!!!!Bad Formatted XML on ", filename, "!!!!!!!"
-        #            print e
-        #            os.chdir(scriptsDir)
+        if(self.RulesRenderer.generateBody() == True):
+            print "PUBLISH SUCCESSFUL"
    
-        #if(success == True):
-        #    print "PUBLISH SUCCESSFUL"
-   
-        #index = open(os.path.join(htmlDir, "index.html"), 'w')
+        index = open(os.path.join(htmlDir, "index.html"), 'w')
    
         # Base Renderer
+        index.write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">")
+        index.write(headString)
+        index.write(ruleLinksString)
+        index.write(centerString)
+        index.write(self.generateIntroduction())
+        index.write(tailString)
+        index.close()
+
+        os.chdir(scriptsDir)
+
+    
+    def generateXSLT(self):
+        xsltH = """<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+            <xsl:output indent="yes"/>
+            <xsl:template name="break">
+                <xsl:param name="text"/>
+                <xsl:choose>
+                   <xsl:when test="contains($text, '&#xa;')">
+                           <xsl:value-of select="substring-before($text, '&#xa;')"/>
+                           <br/>
+                           <xsl:call-template name="break">
+                                   <xsl:with-param name="text" select="substring-after($text,'&#xa;')"/>
+                           </xsl:call-template>
+                   </xsl:when>
+                   <xsl:otherwise>
+                   <xsl:value-of select="$text"/>
+                   </xsl:otherwise>
+               </xsl:choose>
+         </xsl:template>
+         <xsl:template match="/">"""
+         
+        xsltT = """ </xsl:template> </xsl:stylesheet>"""
+        return xsltH, xsltT
+    
+    def generateIntroduction(self):
         introduction = """
            <h1>introduction</h1>
            <!-- **** INSERT PAGE CONTENT HERE **** -->
@@ -191,16 +178,7 @@ class Renderer:
 
            </p>
            """
-        index.write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">")
-        index.write(headString)
-        index.write(ruleLinksString)
-        index.write(centerString)
-        index.write(introduction)
-        index.write(tailString)
-        index.close()
-
-        os.chdir(scriptsDir)
-
+        return introduction
 def usage():
     print "Usage: python ScriptLauncher.py [-h] [-l] [-c] [-M]"
     print "-h, --help                     show help (this)"
